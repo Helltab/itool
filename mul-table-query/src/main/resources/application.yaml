@@ -1,0 +1,61 @@
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 2
+  datasource:
+    # 使用alibaba的druid作为数据库连接池
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # 连接池初始化连接数量
+      initial-size: 5
+      # 最小空闲连接数量
+      min-idle: 5
+      # 最大连接数量
+      max-active: 20
+      # 最大等待时间
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      # 单个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 300000
+      # 单个连接在池中最大生存的时间，单位是毫秒
+      max-evictable-idle-time-millis: 900000
+      # 以系统资源换稳定，连接空闲时检查有效性
+      test-while-idle: true
+      # 以系统资源换稳定，申请连接时检查有效性
+      test-on-borrow: false
+      # 以系统资源换稳定，回收连接时检查有效性
+      test-on-return: false
+      # 缓存statement，用本机内存换效率，但是通常可以关闭
+      pool-prepared-statements: false
+        # max-pool-prepared-statement-per-connection-size: 20
+      # 监控过滤器
+      web-stat-filter:
+        enabled: true
+        exclusions:
+          - "*.js"
+          - "*.gif"
+          - "*.jpg"
+          - "*.png"
+          - "*.css"
+          - "*.ico"
+          - "/druid/*"
+      # druid 监控页面
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        reset-enable: false
+        login-username: root
+        login-password: root
+
+system:
+  jdbc:
+    datasource:
+      filters: stat,wall
+      validationQuery: SELECT 1
+      connections:
+        - driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://alicloud:7778/fp-store?allowMultiQueries=true&createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+          username: root
+          password: asf@343!;fsd12A
+
