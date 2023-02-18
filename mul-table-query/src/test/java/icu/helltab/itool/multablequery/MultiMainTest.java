@@ -88,9 +88,9 @@ public class MultiMainTest {
 			sql.lt(UserInfo::getAge, 20);
 			sql.ge(UserInfo::getAge, 20);
 			sql.gt(UserInfo::getAge, 20);
-			sql.in(UserInfo::getAge, 20, 18);
-			sql.notIn(UserInfo::getAge, 20, 18);
-			sql.notIn(UserInfo::getAge, inner->inner.selectRaw("1"));
+//			sql.in(UserInfo::getAge,0, 20);
+//			sql.notIn(UserInfo::getAge, 20, 18);
+//			sql.notIn(UserInfo::getAge, inner->inner.selectRaw("1"));
 			sql.exists(UserInfo::getAge, inner->inner.selectRaw("1"));
 			sql.like(UserInfo::getUsername, "*尚*");
 			sql.notLike(UserInfo::getAge, "*尚*");

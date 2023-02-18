@@ -691,15 +691,15 @@ public class SqlLambdaBuilder extends SqlBuilder {
 		return subQuery(func, sIdx, SqlKeywords.LT, consumer);
 	}
 
-	public <P, A> SqlLambdaBuilder in(Func1<P, A> source, Object... value) {
+	public <P> SqlLambdaBuilder in(Func1<P, ?> source, Object... value) {
 		return in(true, source, value);
 	}
 
-	public <P, A> SqlLambdaBuilder in(Func1<P, A> source, int sIdx, Object... value) {
+	public <P> SqlLambdaBuilder in(Func1<P, ?> source, int sIdx, Object... value) {
 		return in(true, source, sIdx, value);
 	}
 
-	public <P, A> SqlLambdaBuilder in(boolean nullJudge, Func1<P, A> source, Object... value) {
+	public <P> SqlLambdaBuilder in(boolean nullJudge, Func1<P, ?> source, Object... value) {
 		return in(nullJudge, source, 0, value);
 	}
 
@@ -714,15 +714,15 @@ public class SqlLambdaBuilder extends SqlBuilder {
 		);
 	}
 
-	public <P, A> SqlLambdaBuilder in(Func1<P, A> func, Consumer<SqlLambdaBuilder> consumer) {
+	public <P> SqlLambdaBuilder in(Func1<P, ?> func, Consumer<SqlLambdaBuilder> consumer) {
 		return in(func, 0, consumer);
 	}
 
-	public <P, A> SqlLambdaBuilder in(Func1<P, A> func, int sIdx, Consumer<SqlLambdaBuilder> consumer) {
+	public <P> SqlLambdaBuilder in(Func1<P, ?> func, int sIdx, Consumer<SqlLambdaBuilder> consumer) {
 		return subQuery(func, sIdx, SqlKeywords.IN, consumer);
 	}
 
-	public <P, A> SqlLambdaBuilder notIn(Func1<P, A> source, Object... value) {
+	public <P> SqlLambdaBuilder notIn(Func1<P, ?> source, Object... value) {
 		return notIn(true, source, value);
 	}
 
