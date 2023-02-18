@@ -1,6 +1,6 @@
 # mul-table-query
 
-![image-20230218203546451](/Users/helltab/Library/Application Support/typora-user-images/image-20230218203546451.png)
+![image-20230218203546451](img/img.png)
 
 基于 mybatis-plus的多数据源配置，多表联查工具
 
