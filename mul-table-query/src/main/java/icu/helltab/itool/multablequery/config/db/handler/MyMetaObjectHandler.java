@@ -4,13 +4,14 @@ import java.sql.JDBCType;
 
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.system.UserInfo;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 
 @Component
-@ConditionalOnMissingBean(MetaObjectHandler.class)
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
 

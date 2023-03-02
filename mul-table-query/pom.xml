@@ -5,10 +5,10 @@
     <parent>
         <groupId>icu.helltab</groupId>
         <artifactId>itool</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>mul-table-query</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>mul-table-query</name>
     <description>基于 mybatis-plus 的多数据源配置和多表联查</description>
     <packaging>jar</packaging>
@@ -74,9 +74,13 @@
         </dependency>
     </dependencies>
     <distributionManagement>
-        <snapshotRepository>
+        <repository>
             <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://s01.oss.sonatype.org/content/repositories/release</url>
+        </repository>
+        <snapshotRepository>
+            <id>rd-snapshot-deploy</id>
+            <url>http://172.16.40.152:8081/repository/rd-snapshot</url>
         </snapshotRepository>
     </distributionManagement>
     <scm>

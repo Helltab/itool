@@ -10,4 +10,7 @@ public class RoleInfo {
 	private Long id;
 	private String roleName;
 
+	@TableField(exist = false)
+	private Long create_by;
+
 }

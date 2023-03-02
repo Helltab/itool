@@ -10,7 +10,7 @@
     </parent>
     <groupId>icu.helltab</groupId>
     <artifactId>itool</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>itool</name>
     <description>helltab's os tools</description>
     <packaging>pom</packaging>

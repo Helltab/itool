@@ -136,7 +136,8 @@ public class SqlLambdaBuilder extends SqlBuilder {
 	 * @param <P> generic P
 	 * @return return
 	 */
-	public <P> SqlLambdaBuilder select(Func1<P, ?>... funcs) {
+	@SafeVarargs
+	public final <P> SqlLambdaBuilder select(Func1<P, ?>... funcs) {
 		for (Func1<P, ?> func : funcs) {
 			select(func, 0);
 		}
