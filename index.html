@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<script>
+  let c = (json) => {
+    return arg => {
+      console.log(json, arg);
+    }
+  }
+
+  function scope1() {
+    let a = {h: 3};
+    return c(a);
+  }
+
+  let c_a = scope1();
+  let b = c_a({h:4});
+  let d = c_a({h:5});
+  console.log(b)
+  console.log(d)
+</script>
+
+</body>
+</html>

@@ -17,6 +17,7 @@
     <modules>
         <module>common</module>
         <module>mul-table-query</module>
+        <module>script-engine</module>
     </modules>
     <properties>
         <java.version>1.8</java.version>
@@ -182,6 +183,16 @@
     </dependencyManagement>
     <dependencies>
 
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+            <version>1.7.14</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

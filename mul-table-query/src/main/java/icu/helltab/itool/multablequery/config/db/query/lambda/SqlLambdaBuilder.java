@@ -394,21 +394,14 @@ public class SqlLambdaBuilder extends SqlBuilder {
 		String fieldName = resolveFieldName(source);
 		Class<P> realClass = LambdaUtil.getRealClass(source);
 		if (SqlKeywords.IN == opt) {
-			StringBuilder valueSb = new StringBuilder("(");
-			for (Object o : (Object[]) value) {
-				if (o instanceof Collection<?>) {
-					valueSb.append(((Collection<?>) o).stream()
-						.map(x -> "'" + x + "'")
-						.collect(Collectors.joining(",")));
-				} else {
-					valueSb.append("'" + o + "'");
-				}
-			}
+			String inCondition = Arrays.stream((Object[]) value).map(x -> "'" + x + "'")
+				.collect(Collectors.joining(","));
+
 			this.where(StrUtil.format(
 				WHERE_CONDITION_RAW2,
 				realClass.getSimpleName(), sIdx, fieldName,
 				SqlKeywords.IN,
-				valueSb
+				"(" + inCondition + ")"
 			));
 			return this;
 		}

@@ -18,7 +18,7 @@ import icu.helltab.itool.common.ex.CusException;
  * sql 生成框架工具类
  */
 public class SqlBuilderUtil {
-	static <T> String joint(String flag, String prefix, String suffix, T... values) {
+	public static <T> String joint(String flag, String prefix, String suffix, T... values) {
 		return Arrays.stream(values)
 			.filter(ObjectUtil::isNotEmpty)
 			.map(x -> x instanceof Number ? String.valueOf(x) : prefix + x.toString() + suffix)
@@ -40,25 +40,6 @@ public class SqlBuilderUtil {
 
 
 	//////////lambda
-
-	public static <P> String getLambdaFieldName(Func1<P, ?> func1) throws Exception {
-		String fieldName = LambdaUtil.getFieldName(func1);
-		Class<P> realClass = LambdaUtil.getRealClass(func1);
-
-		StringBuilder sb = new StringBuilder();
-		Field field = ReflectUtil.getField(realClass, fieldName);
-		TableField tableField = field.getAnnotation(TableField.class);
-		TableName tableName = realClass.getAnnotation(TableName.class);
-		if (ObjectUtil.isNull(tableName)) {
-			throw new CusException(realClass + ": 无 TableName 注解");
-		}
-		sb.append(tableName.value()).append(".")
-			.append(ObjectUtil.isNull(tableField)
-				? fieldName
-				: tableField.value()
-			);
-		return sb.toString();
-	}
 
 	public static <P,A> String resolveFieldName(Func1<P, A> func1) {
 		Class<P> aClass = LambdaUtil.getRealClass(func1);

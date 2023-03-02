@@ -174,15 +174,6 @@ public class MySqlRunner implements ISqlRunner {
             closeSqlSession(sqlSession);
         }
     }
-    public List<Map<String, Object>> selectRaw(Consumer<SqlBuilder> consumer) {
-        SqlSession sqlSession = sqlSession();
-        try {
-            String sql = SqlLambdaBuilder.of(consumer);
-            return sqlSession.selectList(SELECT_LIST, sqlMap(sql));
-        } finally {
-            closeSqlSession(sqlSession);
-        }
-    }
 
     /**
      * 根据sql查询一个字段值的结果集

@@ -31,6 +31,9 @@ public class MultiMainTest {
 	UserService userService;
 	@Test
 	public void test() {
+		userService.getOne(q->{
+			q.last("limit 1");
+		});
 		List<UserInfo> objects = userService.exList(sql -> {
 			sql.select(UserInfo::getUsername, 0)
 				.from(UserInfo.class)
@@ -44,6 +47,25 @@ public class MultiMainTest {
 		List<Map<String, Object>> maps1 = mySqlRunner.selectLambda(sql -> {
 			sql.selectRaw("'Ada' username", "1 password")
 				.from(UserInfo.class);
+		});
+		System.out.println(maps);
+	}
+
+	@Test
+	public void testIn() {
+		List<Map<String, Object>> maps = mySqlRunner.selectLambda(sql -> {
+			sql.from(UserInfo.class)
+				.in(UserInfo::getUsername, "fp", "hjc")
+			;
+		});
+		System.out.println(maps);
+	}
+	@Test
+	public void testName() {
+		List<Map<String, Object>> maps = mySqlRunner.selectLambda(sql -> {
+			sql.from(UserInfo.class)
+				.in(UserInfo::getUsername, "fp", "hjc")
+			;
 		});
 		System.out.println(maps);
 	}
