@@ -4,8 +4,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Properties;
 
+import com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.logging.jdbc.PreparedStatementLogger;
 import org.apache.ibatis.plugin.Interceptor;
@@ -22,6 +24,11 @@ import com.baomidou.mybatisplus.extension.handlers.AbstractSqlParserHandler;
 import com.mysql.cj.PreparedQuery;
 import com.mysql.cj.jdbc.ClientPreparedStatement;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.DefaultManagedTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 
 @Intercepts({
@@ -31,15 +38,10 @@ import lombok.extern.slf4j.Slf4j;
 })
 @Slf4j
 public class PrintSqlPlugin extends AbstractSqlParserHandler implements Interceptor {
-    @Value("${custom.debug:true}")
-    boolean debug;
     public PrintSqlPlugin() {
     }
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-        if(!debug) {
-            return invocation.proceed();
-        }
         try {
             DruidPooledPreparedStatement statement = null;
             Object[] args = invocation.getArgs();
@@ -59,24 +61,18 @@ public class PrintSqlPlugin extends AbstractSqlParserHandler implements Intercep
             }
             assert statement != null;
             PreparedStatement statement1 = statement.getRawStatement();
-            System.out.println(statement1.getClass());
-            ClientPreparedStatement rawStatement = (ClientPreparedStatement) statement1;
+            PreparedStatementProxyImpl rawStatement = (PreparedStatementProxyImpl) statement1;
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-            StackTraceElement stackTraceElement = null;
-            for (StackTraceElement element : stackTrace) {
-                if (element.getClassName().matches("icu\\.helltab\\.fpstore\\..*?\\.controller.*")) {
-                    stackTraceElement = element;
-                    break;
-                }
-            }
-
-            log.debug(( "\n\n------------------------------------------\n" +
-                    "SQL_L: {}\n" +
-                    "SQL_I: {}" +
-                    "\n------------------------------------------\n\n")
-                , stackTraceElement, SqlUtil.formatSql(((PreparedQuery)rawStatement.getQuery()).asSql()));
+            StackTraceElement stackTraceElement = Arrays.stream(stackTrace).filter(element -> element.getClassName()
+                    .matches(".*?\\.controller\\..*?Controller")).findFirst().orElse(null);
+            log.info(( "\n\n------------------------------------------\n" +
+                            "SQL_L: {}\n" +
+                            "SQL_I: {}\n" +
+                            "SQL_P: {}" +
+                            "\n------------------------------------------\n\n")
+                    , stackTraceElement, rawStatement.getLastExecuteSql(), rawStatement.getParameters());
         } catch (Exception e) {
-            log.debug( "db-error: {}", e.getMessage());
+            log.error( "db-print-error: {}", e.getMessage());
         }
         return invocation.proceed();
     }

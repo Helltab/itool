@@ -2,6 +2,13 @@ package icu.helltab.itool.multablequery.config.db;
 
 import javax.sql.DataSource;
 
+import cn.hutool.db.dialect.Dialect;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.pagination.dialects.IDialect;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.AutoMappingBehavior;
 import org.apache.ibatis.session.LocalCacheScope;
@@ -16,7 +23,7 @@ import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import icu.helltab.itool.multablequery.config.db.handler.MyMetaObjectHandler;
-import icu.helltab.itool.multablequery.config.db.injector.SqlInjector;
+import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
 import icu.helltab.itool.multablequery.config.db.plugins.PrintSqlPlugin;
 
 /**
@@ -87,8 +94,13 @@ public interface IMybatisPlusConfig {
 	}
 
 	default Interceptor[] plugins() {
+		MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
+		PaginationInnerInterceptor innerInterceptor = new PaginationInnerInterceptor();
+		innerInterceptor.setOverflow(false);
+		mybatisPlusInterceptor.addInnerInterceptor(innerInterceptor);
 		return new Interceptor[]{
-			new PrintSqlPlugin()
+			new PrintSqlPlugin(),
+				mybatisPlusInterceptor
 		};
 	}
 
@@ -98,9 +110,8 @@ public interface IMybatisPlusConfig {
 	}
 
 
-	MybatisSqlSessionFactoryBean factoryBean();
+	default MybatisSqlSessionFactoryBean factoryBean() {return null;}
 
-	JdbcTransactionManager tm();
 	/**
 	 * mybatis 原生属性
 	 *
@@ -154,5 +165,10 @@ public interface IMybatisPlusConfig {
 		transactionManagerCustomizers.ifAvailable((customizers) -> customizers.customize(transactionManager));
 		return transactionManager;
 	}
+
+	default MySqlRunner mySqlRunner(MybatisSqlSessionFactoryBean sqlSessionFactoryBean) {
+		return new MySqlRunner(sqlSessionFactoryBean);
+	}
+
 
 }

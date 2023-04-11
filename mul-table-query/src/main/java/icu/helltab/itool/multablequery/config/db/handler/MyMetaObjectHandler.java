@@ -11,7 +11,6 @@ import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.system.UserInfo;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 
-@Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
 

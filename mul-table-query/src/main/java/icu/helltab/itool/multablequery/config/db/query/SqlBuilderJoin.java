@@ -16,7 +16,7 @@ public class SqlBuilderJoin {
 	}
 
 	public SqlBuilder on(String condition) {
-		builder.appendKeywords(SqlKeywords.ON)
+		builder.fromRawSql.append(SqlKeywords.ON)
 			.append(condition)
 		;
 		return this.builder;

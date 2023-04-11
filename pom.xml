@@ -36,7 +36,7 @@
         <spring-cloud>2021.0.4</spring-cloud>
         <ali-cloud>2021.0.4.0</ali-cloud>
         <spring-session>2021.1.1</spring-session>
-        <slf4j.version>2.0.6</slf4j.version>
+        <slf4j.version>1.7.1</slf4j.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -66,10 +66,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!--mybatis-->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus</artifactId>
+                <version>${mybatisplus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatisplus.version}</version>
             </dependency>
             <dependency>
@@ -181,18 +185,7 @@
         </dependencies>
 
     </dependencyManagement>
-    <dependencies>
 
-        <dependency>
-            <groupId>org.mozilla</groupId>
-            <artifactId>rhino</artifactId>
-            <version>1.7.14</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-        </dependency>
-    </dependencies>
+
 
 </project>

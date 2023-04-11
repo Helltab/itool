@@ -1,18 +1,18 @@
 package icu.helltab.itool.multablequery;
 
+import javax.annotation.Resource;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.runners.JUnit38ClassRunner;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import cn.hutool.db.sql.SqlUtil;
 import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
 import icu.helltab.itool.multablequery.mapper.RoleInfo;
 import icu.helltab.itool.multablequery.mapper.UserInfo;
+import icu.helltab.itool.multablequery.mapper.UserService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 @RunWith(JUnit4.class)
 @Slf4j
 public class LambdaSqlTest {
+
+	@Resource
+	UserService baseService;
 	@Before
 	public void setUp() {
 		System.out.println("----------------start");
@@ -50,8 +53,7 @@ public class LambdaSqlTest {
 
 		System.out.println("--2--");
 		result = SqlLambdaBuilder.lambda(sql -> {
-			sql.select(UserInfo::getRoleId, UserInfo::getPassword)
-				.from(UserInfo.class);
+			sql.from(UserInfo.class);
 		});
 		System.out.println(SqlUtil.formatSql(result));
 		Assert.assertTrue(result.contains("SELECT"));
@@ -60,8 +62,8 @@ public class LambdaSqlTest {
 
 		System.out.println("--3-- 注意这里重复表名的处理");
 		result = SqlLambdaBuilder.lambda(sql -> {
-			sql.select(UserInfo::getRoleId, 1)
-				.select(UserInfo::getPassword, 1)
+			sql.select(UserInfo::getRoleId, sql.ALIAS(1))
+				.select(UserInfo::getPassword, sql.ALIAS(1))
 				.select(inner -> {
 					inner.selectCount(UserInfo::getId)
 						.from(UserInfo.class);
@@ -75,6 +77,22 @@ public class LambdaSqlTest {
 
 	@Test
 	public void testJoin() {
+
+		baseService.getOne(q->{
+			q.select(UserInfo::getUsername)
+				.eq(UserInfo::getId, "");
+		});
+
+		baseService.exOne(q->{
+			q.select(UserInfo::getUsername)
+				.from(UserInfo.class)
+				.leftJoin(RoleInfo.class, join -> {
+					join.eq(RoleInfo::getId, UserInfo::getRoleId);
+				})
+				.eq(UserInfo::getId, "")
+			;
+		}, UserInfo.class);
+
 		String result = SqlLambdaBuilder.lambda(sql -> {
 			sql.select(UserInfo::getUsername)
 				.select(RoleInfo::getRoleName, RoleInfo::getId)

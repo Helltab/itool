@@ -1,5 +1,6 @@
 package icu.helltab.itool.common.http;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 /**
@@ -9,8 +10,8 @@ import lombok.Data;
  */
 @Data
 public class HttpResult<T> extends BaseHttpResult<T> {
+    @JsonIgnore
     private transient HttpPaged paged;
-    private transient StackTraceElement controllerStack;
 
     public HttpResult() {
     }
@@ -21,7 +22,7 @@ public class HttpResult<T> extends BaseHttpResult<T> {
      *
      * @return
      */
-    public static <T> HttpResult<T> build() {
+    public static <M, T> HttpResult<T> build() {
         return ThreadLocalUtil.get(new HttpResult<T>());
     }
     public static <T> HttpResult<T> build(T data) {
@@ -32,7 +33,6 @@ public class HttpResult<T> extends BaseHttpResult<T> {
 
     public static <T> HttpResult<T> build(Process<HttpResult<T>> consumer) throws Exception {
         HttpResult<T> httpResult = build();
-        httpResult.controllerStack = Thread.currentThread().getStackTrace()[2];
         consumer.run(httpResult);
         return httpResult;
     }

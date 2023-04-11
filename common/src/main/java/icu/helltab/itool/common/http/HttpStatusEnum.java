@@ -8,9 +8,7 @@ public enum HttpStatusEnum implements HttpStatusInf {
     NO_AUTH(403, "no auth"),
     FAIL(500, "fail"),
     NOT_FROM_GATEWAY(400, "illegal request, not from gateway!"),
-    IDEMPOTENT(88403, "请求重复, 幂等性校验失败"),
-    FROZEN_DATA(88400, "架机已交付，数据已被冻结");
-
+    IDEMPOTENT(88403, "请求重复, 幂等性校验失败");
     private final int code;
     private final String desc;
 

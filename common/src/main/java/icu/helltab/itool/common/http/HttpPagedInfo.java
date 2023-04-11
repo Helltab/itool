@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class HttpPagedInfo<T> {
+    private long pageNum;
+    private long pageSize;
     private long count;
     List<T> list;
 }

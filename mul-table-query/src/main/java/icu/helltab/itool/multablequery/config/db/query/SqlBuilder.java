@@ -1,8 +1,14 @@
 package icu.helltab.itool.multablequery.config.db.query;
 
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import cn.hutool.core.util.StrUtil;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.joint;
 
@@ -13,27 +19,43 @@ public class SqlBuilder {
 	 * 只生成条件
 	 */
 	protected boolean isRawCondition = false;
-	private final StringBuilder rawSql = new StringBuilder();
+//	private final StringBuilder rawSql = new StringBuilder();
+	protected final StringBuilder selectRawSql = new StringBuilder();
+	protected final StringBuilder fromRawSql = new StringBuilder();
+	protected final StringBuilder whereRawSql = new StringBuilder();
+	protected final StringBuilder groupRawSql = new StringBuilder();
+	protected final StringBuilder orderRawSql = new StringBuilder();
+	protected final StringBuilder otherRawSql = new StringBuilder();
+	protected Map<LogicObj, AtomicInteger> logic = new HashMap<>();
+
 	protected boolean hasWhere = false;
 	protected boolean hasFrom = false;
+	protected boolean hasGroup = false;
 
+	@Data
+	@AllArgsConstructor
+	protected static class LogicObj {
+		Class<?> realClazz;
+		Field field;
+	}
+
+	public StringBuilder getRawSql() {
+
+		return selectRawSql
+				.append(fromRawSql)
+				.append(whereRawSql)
+				.append(genLogic())
+				.append(groupRawSql)
+				.append(orderRawSql)
+				.append(otherRawSql)
+				;
+	}
 
 	public String build() {
-		return rawSql.toString();
+		return getRawSql().toString();
 	}
 
-
-	/**
-	 * 添加关键字
-	 *
-	 * @param keywords
-	 * @return
-	 */
-	public StringBuilder appendKeywords(SqlKeywords keywords) {
-		rawSql.append(keywords.getName());
-		return rawSql;
-	}
-
+	public String genLogic() {return "";};
 
 	/**
 	 * 添加 from
@@ -44,25 +66,26 @@ public class SqlBuilder {
 	 */
 	public SqlBuilder from(String... from) {
 		if(!hasFrom) {
-			appendKeywords(SqlKeywords.FROM);
+			fromRawSql.append(SqlKeywords.FROM);
 			hasFrom = true;
 		}
-		rawSql.append(joint(", ", "","", from));
+
+		fromRawSql.append(joint(", ", "","", from));
 		return this;
 	}
 
 	public void  where(String condition) {
 		if(!hasWhere) {
-			if(isRawCondition) {
-				rawSql.append(condition);
-			}else {
-				appendKeywords(SqlKeywords.WHERE).append(condition);
+			if(!isRawCondition) {
+				whereRawSql.append(SqlKeywords.WHERE);
 			}
+			whereRawSql.append(condition);
 			hasWhere = true;
 			return;
 		}
-		appendKeywords(SqlKeywords.AND).append(condition);
+		whereRawSql.append(SqlKeywords.AND).append(condition);
 	}
+
 	/**
 	 * 通用 join
 	 * @param join
@@ -70,15 +93,18 @@ public class SqlBuilder {
 	 * @return
 	 */
 	public SqlBuilderJoin join(String join, SqlKeywords joinKeywords) {
-		appendKeywords(joinKeywords)
-			.append(join)
+		fromRawSql.append(joinKeywords)
+				.append(join)
 		;
 		return SqlBuilderJoin.build(this);
 	}
 
 	public SqlBuilder group(String ...groups) {
-		appendKeywords(SqlKeywords.GROUP)
-			.append(joint(", ", "","", groups));
+		if(!hasGroup) {
+			groupRawSql.append(SqlKeywords.GROUP);
+			hasGroup = true;
+		}
+		groupRawSql.append(joint(", ", "","", groups));
 		return this;
 	}
 

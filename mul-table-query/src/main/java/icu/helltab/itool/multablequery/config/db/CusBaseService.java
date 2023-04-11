@@ -10,7 +10,6 @@ import javax.annotation.PostConstruct;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,10 +19,18 @@ import icu.helltab.itool.common.ex.CusException;
 import icu.helltab.itool.common.http.HttpPaged;
 import icu.helltab.itool.common.http.HttpPagedInfo;
 import icu.helltab.itool.common.http.HttpResult;
+import icu.helltab.itool.common.http.ThreadLocalUtil;
+import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
 import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
 
+/**
+ * 多数据源 Service 配置, 如果只有一个数据源, 不需要做扩展
+ * @see
+ * @param <M>
+ * @param <T>
+ */
 public abstract class CusBaseService<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> {
-	protected  MySqlRunner mySqlRunner;
+	protected MySqlRunner mySqlRunner;
 
 
 	@PostConstruct
@@ -48,16 +55,17 @@ public abstract class CusBaseService<M extends BaseMapper<T>, T> extends Service
 	public List<T> list(Consumer<LambdaQueryWrapper<T>> consumer) {
 		return handle(consumer, this::list);
 	}
-	public HttpPagedInfo<T> page(Consumer<LambdaQueryWrapper<T>> consumer) throws Exception {
-		HttpPaged paged = HttpResult.build().getPaged();
-		if(paged==null) {
-			throw new CusException("尝试在接口上添加 @Page ");
-		}
-		Page<T> page = new Page<>(paged.getPageNum(), paged.getPageSize());
+	public HttpPagedInfo<T> pageQuery(Consumer<LambdaQueryWrapper<T>> consumer)  {
 		LambdaQueryWrapper<T> lambda = new LambdaQueryWrapper<>();
 		consumer.accept(lambda);
-		Page<T> tPage = this.page(page, lambda);
-		return new HttpPagedInfo<>(tPage.getTotal(), tPage.getRecords());
+		HttpResult<Object> build = HttpResult.build();
+		HttpPaged paged = build.getPaged();
+		if(paged==null) {
+			build.error("尝试在接口上添加 @Paged 注解");
+			return new HttpPagedInfo<>(0, 0, 0, null);
+		}
+		Page<T> page = this.page(ThreadLocalUtil.get(new Page<>(paged.getPageNum(), paged.getPageSize())), lambda);
+		return new HttpPagedInfo<>(page.getCurrent(), page.getSize(), page.getTotal(), page.getRecords());
 	}
 
 	private <E> E handle(Consumer<LambdaQueryWrapper<T>> consumer,
@@ -94,14 +102,14 @@ public abstract class CusBaseService<M extends BaseMapper<T>, T> extends Service
 	}
 
 	private <E> E getOneCustom(String sql, Class<E> clazz) {
-		Map<String, Object> stringObjectMap = mySqlRunner.selectOne(sql);
+		Map<String, Object> stringObjectMap = getMySqlRunner().selectOne(sql);
 		if(clazz.isPrimitive() || clazz == String.class) {
 			return (E) stringObjectMap.values().stream().findFirst().orElse(null);
 		}
 		return BeanUtil.toBean(stringObjectMap, clazz);
 	}
 	private <E> List<E> listCustom(String sql, Class<E> clazz) {
-		List<Map<String, Object>> list = mySqlRunner.selectList(sql);
+		List<Map<String, Object>> list = getMySqlRunner().selectList(sql);
 		if(clazz.isPrimitive()) {
 			return list.stream()
 				.map(x->(E) x.values().stream().findFirst().orElse(null))
@@ -130,7 +138,7 @@ public abstract class CusBaseService<M extends BaseMapper<T>, T> extends Service
 		List<E> list = listCustom(StrUtil.format(SELECT_LIMIT,
 			finalSql, paged.getFrom(), paged.getPageSize()), clazz);
 		long count = getOneCustom(StrUtil.format(SELECT_COUNT, finalSql), long.class);
-		return new HttpPagedInfo<>(count, list);
+		return new HttpPagedInfo<>(paged.getPageNum(), paged.getPageSize(), count, list);
 	}
 
 

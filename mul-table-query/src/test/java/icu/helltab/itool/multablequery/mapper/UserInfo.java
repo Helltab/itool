@@ -1,14 +1,15 @@
 package icu.helltab.itool.multablequery.mapper;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import icu.helltab.itool.multablequery.config.db.handler.BaseEntity;
 import lombok.Data;
 
 @TableName("fps_user_info")
 @Data
-public class UserInfo {
+public class UserInfo extends BaseEntity {
 
-	private Long id;
 	private String username;
 	@TableField(exist = false)
 	private String password;
@@ -18,4 +19,6 @@ public class UserInfo {
 	private Long count;
 	@TableField(exist = false)
 	private Long roleId;
+
+
 }
