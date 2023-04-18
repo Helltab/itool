@@ -1066,7 +1066,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
                         StrUtil.toUnderlineCase(logicObj.getField().getName())),
                 SqlKeywords.EQ,
                 "0"
-        )).collect(Collectors.joining(", "));
+        )).collect(Collectors.joining(" "));
     }
 
     public String build() {

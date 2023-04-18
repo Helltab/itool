@@ -1,6 +1,5 @@
 package icu.helltab.itool.multablequery.config.db.multi;
 
-import icu.helltab.itool.multablequery.config.db.plugins.PrintSqlPlugin;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;

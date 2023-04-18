@@ -18,22 +18,22 @@ public abstract class BaseResult implements Serializable {
 
     public BaseResult error(Object... msgArray) {
         this.errorDetail();
-        return this.setMsg(msgArray);
+        return this.appendMsg(msgArray);
     }
 
     public BaseResult errorF(String template, Object... vars) {
         return this.error(StrUtil.format(template, vars));
     }
 
-    public BaseResult setMsg(Object... msgArray) {
+    public BaseResult appendMsg(Object... msgArray) {
         Arrays.stream(msgArray).filter(Objects::nonNull).distinct().forEach((x) -> {
             this.msgList.add(x.toString());
         });
         return this;
     }
 
-    public BaseResult setMsgF(String template, Object... vars) {
-        this.setMsg(StrUtil.format(template, vars));
+    public BaseResult appendMsgFormat(String template, Object... vars) {
+        this.appendMsg(StrUtil.format(template, vars));
         return this;
     }
 
