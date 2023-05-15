@@ -10,9 +10,11 @@ import javax.annotation.Resource;
 
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
+import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
+import icu.helltab.itool.multablequery.mapper.UserInfo;
+import icu.helltab.itool.multablequery.mapper2.UserService2;
 import icu.helltab.itool.multablequery.mapper.RoleInfo;
 import icu.helltab.itool.multablequery.mapper.RoleUser;
-import icu.helltab.itool.multablequery.mapper.UserInfo;
 import icu.helltab.itool.multablequery.mapper.UserService;
 import org.junit.After;
 import org.junit.Before;
@@ -22,9 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
 import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
-import icu.helltab.itool.multablequery.mapper2.UserService2;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MultiMain.class)

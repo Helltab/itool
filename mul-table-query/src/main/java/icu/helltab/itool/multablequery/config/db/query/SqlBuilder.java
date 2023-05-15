@@ -4,10 +4,9 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.joint;
 
 
 /**
@@ -15,7 +14,7 @@ import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.joi
  * @mail helltab@163.com
  * @date 2023/4/18 13:54
  * @desc 这里是自定义 sql 拼装的主类
- * @see icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder
+ * @see SqlLambdaBuilder
  */
 @Data
 public class SqlBuilder {
@@ -74,7 +73,7 @@ public class SqlBuilder {
 			hasFrom = true;
 		}
 
-		fromRawSql.append(joint(", ", "","", from));
+		fromRawSql.append(SqlBuilderUtil.joint(", ", "","", from));
 		return this;
 	}
 
@@ -108,7 +107,7 @@ public class SqlBuilder {
 			groupRawSql.append(SqlKeywords.GROUP);
 			hasGroup = true;
 		}
-		groupRawSql.append(joint(", ", "","", groups));
+		groupRawSql.append(SqlBuilderUtil.joint(", ", "","", groups));
 		return this;
 	}
 

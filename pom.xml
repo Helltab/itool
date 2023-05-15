@@ -8,19 +8,23 @@
         <version>2.4.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>icu.helltab</groupId>
-    <artifactId>itool</artifactId>
+    <groupId>icu.helltab.itool</groupId>
+    <artifactId>parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>itool</name>
-    <description>helltab's os tools</description>
+    <description>helltab's parent pom</description>
     <packaging>pom</packaging>
     <modules>
         <module>common</module>
         <module>mul-table-query</module>
-        <module>script-engine</module>
+<!--        <module>script-engine</module>-->
     </modules>
     <properties>
         <java.version>1.8</java.version>
+        <ws.version>2.1.1</ws.version>
+        <security.oauth2.version>2.5.2.RELEASE</security.oauth2.version>
+        <fastjson.version>1.2.76</fastjson.version>
+        <slf4j.version>1.7.1</slf4j.version>
         <mybatisplus.version>3.4.2</mybatisplus.version>
         <lombok.version>1.18.22</lombok.version>
         <hutool.version>5.8.10</hutool.version>
@@ -33,18 +37,13 @@
         <fastjson.version>1.2.76</fastjson.version>
         <druid.version>1.2.15</druid.version>
         <spring-boot.mybatis>2.3.0</spring-boot.mybatis>
-        <spring-cloud>2021.0.4</spring-cloud>
-        <ali-cloud>2021.0.4.0</ali-cloud>
+        <spring-cloud>2020.0.1</spring-cloud>
+        <ali-cloud>2021.1</ali-cloud>
         <spring-session>2021.1.1</spring-session>
-        <slf4j.version>1.7.1</slf4j.version>
+
     </properties>
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>icu.helltab</groupId>
-                <artifactId>common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.springframework.session</groupId>
                 <artifactId>spring-session-bom</artifactId>
@@ -52,6 +51,22 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+
+            <!--mybatis-->
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-extension</artifactId>
+                <version>${mybatisplus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>icu.helltab.itool</groupId>
+                <artifactId>common</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
@@ -76,11 +91,7 @@
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatisplus.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-extension</artifactId>
-                <version>${mybatisplus.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-core</artifactId>
@@ -184,7 +195,22 @@
         </dependencies>
 
     </dependencyManagement>
-
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <scm>
+        <connection>scm:git@github.com:Helltab/itool.git</connection>
+        <developerConnection>scm:git@github.com:Helltab/itool.git</developerConnection>
+        <url>https://github.com/mybatis/spring-boot-starter/tree/master</url>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <system>GitHub Issue Management</system>
+        <url>https://github.com/Helltab/itool/issues</url>
+    </issueManagement>
 
 
 </project>

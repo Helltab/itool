@@ -6,11 +6,12 @@ import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.extra.template.engine.freemarker.FreemarkerEngine;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil;
+import icu.helltab.itool.multablequery.config.db.query.lambda.alias.SubQueryAlias;
 import icu.helltab.itool.multablequery.config.db.query.SqlBuilder;
 import icu.helltab.itool.multablequery.config.db.query.SqlKeywords;
 import icu.helltab.itool.multablequery.config.db.query.lambda.alias.BaseAlias;
 import icu.helltab.itool.multablequery.config.db.query.lambda.alias.SerialAlias;
-import icu.helltab.itool.multablequery.config.db.query.lambda.alias.SubQueryAlias;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,9 +20,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.resolveFieldName;
-import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.resolveTableName;
 
 /**
  * @author Helltab
@@ -229,7 +227,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
     public <P> SqlLambdaBuilder select(Func1<P, ?> func, BaseAlias idx, String as) {
         Class<P> realClass = LambdaUtil.getRealClass(func);
         selectFieldList.add(
-                StrUtil.format(SELECT_AS, realClass.getSimpleName(), idx, resolveFieldName(func), as)
+                StrUtil.format(SELECT_AS, realClass.getSimpleName(), idx, SqlBuilderUtil.resolveFieldName(func), as)
         );
         return this;
     }
@@ -237,7 +235,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
     public <P, Q> SqlLambdaBuilder selectCount(Func1<P, Q> func, BaseAlias idx) {
         Class<P> realClass = LambdaUtil.getRealClass(func);
         selectFieldList.add(
-                StrUtil.format(FUN_FIELD, SqlKeywords.FUN_COUNT, realClass.getSimpleName(), idx, resolveFieldName(func))
+                StrUtil.format(FUN_FIELD, SqlKeywords.FUN_COUNT, realClass.getSimpleName(), idx, SqlBuilderUtil.resolveFieldName(func))
         );
         return this;
     }
@@ -249,7 +247,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
 
     public <P, Q, A, B> SqlLambdaBuilder selectSum(Func1<P, Q> func, BaseAlias idx) {
         selectFieldList.add(
-                StrUtil.format(FUN_FIELD, SqlKeywords.FUN_SUM, LambdaUtil.getRealClass(func).getSimpleName(), idx, resolveFieldName(func))
+                StrUtil.format(FUN_FIELD, SqlKeywords.FUN_SUM, LambdaUtil.getRealClass(func).getSimpleName(), idx, SqlBuilderUtil.resolveFieldName(func))
         );
         return this;
     }
@@ -265,7 +263,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
         String inner_key = "ik_" + IdUtil.fastSimpleUUID();
         innerMap.put(inner_key, copy);
         selectFieldList.add(
-                StrUtil.format("(${{}}) {}", inner_key, resolveFieldName(as))
+                StrUtil.format("(${{}}) {}", inner_key, SqlBuilderUtil.resolveFieldName(as))
         );
         return this;
     }
@@ -325,7 +323,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
     private String[] getTableList(List<Class> tables) {
         List<String> list = new ArrayList<>();
         for (Class<?> table : tables) {
-            String tableName = resolveTableName(table);
+            String tableName = SqlBuilderUtil.resolveTableName(table);
             String tableAlias = getTableAlias(tableIdx.getAndAdd(1), false);
             String s = tableName + " " + tableAlias;
             list.add(s);
@@ -405,7 +403,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
         SqlLambdaBuilder lambdaBuilder = copy(this);
         consumer.accept(lambdaBuilder);
         String condition = StrUtil.format(
-                WHERE_CONDITION_RAW3(realClass.getSimpleName(), sIdx, resolveFieldName(func)),
+                WHERE_CONDITION_RAW3(realClass.getSimpleName(), sIdx, SqlBuilderUtil.resolveFieldName(func)),
                 opt,
                 lambdaBuilder.build()
         );
@@ -424,14 +422,14 @@ public class SqlLambdaBuilder extends SqlBuilder {
             } else if (null == value) {
                 Class<P> realClass = LambdaUtil.getRealClass(source);
                 this.where(StrUtil.format(
-                        WHERE_CONDITION_RAW2(realClass.getSimpleName(), sIdx, resolveFieldName(source)),
+                        WHERE_CONDITION_RAW2(realClass.getSimpleName(), sIdx, SqlBuilderUtil.resolveFieldName(source)),
                         notFlag ? SqlKeywords.IS_NOT : SqlKeywords.IS,
                         SqlKeywords.NVL
                 ));
                 return this;
             }
         }
-        String fieldName = resolveFieldName(source);
+        String fieldName = SqlBuilderUtil.resolveFieldName(source);
         Class<P> realClass = LambdaUtil.getRealClass(source);
         if (SqlKeywords.IN == opt || SqlKeywords.NOT_IN == opt) {
             String inCondition = Arrays.stream((Object[]) value).map(x -> "'" + x + "'")
@@ -498,9 +496,9 @@ public class SqlLambdaBuilder extends SqlBuilder {
         Class<P> aClass = LambdaUtil.getRealClass(a);
         Class<B> bClass = LambdaUtil.getRealClass(b);
         String optResult = StrUtil.format(WHERE_CONDITION(
-                        aClass.getSimpleName(), aIdx, resolveFieldName(a),
+                        aClass.getSimpleName(), aIdx, SqlBuilderUtil.resolveFieldName(a),
                         opt,
-                        bClass.getSimpleName(), bIdx, resolveFieldName(b)
+                        bClass.getSimpleName(), bIdx, SqlBuilderUtil.resolveFieldName(b)
                 )
         );
         this.where(optResult);
@@ -524,7 +522,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
         if (null != value && value instanceof SqlLambdaFun) {
             str = ((SqlLambdaFun) value).end();
         } else {
-            str = value == null ? null : (left ? "" : "%") + String.valueOf(value).replace("*", "%") + "%";
+            str = ObjectUtil.isEmpty(value) ? null : (left ? "" : "%") + String.valueOf(value).replace("*", "%") + "%";
         }
         return condition(nullJudge, fun, str, SqlKeywords.LIKE, false);
     }
@@ -933,7 +931,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
                 nullJudge,
                 source,
                 sIdx,
-                value == null ? null : (left ? "" : "%") + String.valueOf(value).replace("*", "%") + "%",
+                ObjectUtil.isEmpty(value) ? null : (left ? "" : "%") + String.valueOf(value).replace("*", "%") + "%",
                 SqlKeywords.LIKE,
                 true
         );
@@ -965,7 +963,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
                 nullJudge,
                 source,
                 sIdx,
-                value == null ? null : (left ? "" : "%") + String.valueOf(value).replace("*", "%") + "%",
+                ObjectUtil.isEmpty(value) ? null : (left ? "" : "%") + String.valueOf(value).replace("*", "%") + "%",
                 SqlKeywords.NOT_LIKE,
                 false
         );
@@ -1019,7 +1017,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
         group(StrUtil.format(TABLE_FIELD,
                 realClass.getSimpleName(),
                 alias.get(),
-                resolveFieldName(func)
+                SqlBuilderUtil.resolveFieldName(func)
         ));
         return this;
     }
@@ -1040,7 +1038,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
     public <A, B> SqlLambdaBuilder order(Func1<A, B> func, BaseAlias idx, boolean direct) {
         this.orderList.add(StrUtil.format(SELECT_AS,
                 LambdaUtil.getRealClass(func).getSimpleName(), idx,
-                resolveFieldName(func), direct ? SqlKeywords.ASC : SqlKeywords.DESC));
+                SqlBuilderUtil.resolveFieldName(func), direct ? SqlKeywords.ASC : SqlKeywords.DESC));
         return this;
     }
 
@@ -1130,7 +1128,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
 
         public <P> SqlLambdaFun bind(Func1<P, ?> fun, BaseAlias alias) {
             Class<P> realClass = LambdaUtil.getRealClass(fun);
-            String arg = StrUtil.format(TABLE_FIELD, realClass.getSimpleName(), alias.get(), resolveFieldName(fun));
+            String arg = StrUtil.format(TABLE_FIELD, realClass.getSimpleName(), alias.get(), SqlBuilderUtil.resolveFieldName(fun));
             args.add(arg);
             return this;
         }
@@ -1148,7 +1146,7 @@ public class SqlLambdaBuilder extends SqlBuilder {
         public <P> String as(Func1<P, ?> fun) {
             Class<P> realClass = LambdaUtil.getRealClass(fun);
             String format = StrUtil.format(org, args.toArray());
-            return StrUtil.format(" ({}) {} ", format, resolveFieldName(fun));
+            return StrUtil.format(" ({}) {} ", format, SqlBuilderUtil.resolveFieldName(fun));
         }
     }
 

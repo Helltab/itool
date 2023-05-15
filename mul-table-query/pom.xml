@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>icu.helltab</groupId>
-        <artifactId>itool</artifactId>
+        <groupId>icu.helltab.itool</groupId>
+        <artifactId>parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>mul-table-query</artifactId>
@@ -54,7 +54,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>icu.helltab</groupId>
+            <groupId>icu.helltab.itool</groupId>
             <artifactId>common</artifactId>
         </dependency>
         <dependency>
@@ -66,26 +66,7 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
     </dependencies>
-    <distributionManagement>
-<!--        <snapshotRepository>-->
-<!--            <id>ossrh</id>-->
-<!--            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>-->
-<!--        </snapshotRepository>-->
-        <snapshotRepository>
-            <id>rd-snapshot-deploy</id>
-            <url>http://172.16.40.152:8081/repository/rd-snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
-    <scm>
-        <connection>scm:git@github.com:Helltab/itool.git</connection>
-        <developerConnection>scm:git@github.com:Helltab/itool.git</developerConnection>
-        <url>https://github.com/mybatis/spring-boot-starter/tree/master</url>
-        <tag>HEAD</tag>
-    </scm>
-    <issueManagement>
-        <system>GitHub Issue Management</system>
-        <url>https://github.com/Helltab/itool/issues</url>
-    </issueManagement>
+
     <build>
         <plugins>
             <plugin>
@@ -95,26 +76,6 @@
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-            <!--            <plugin>-->
-            <!--                <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                <artifactId>maven-dependency-plugin</artifactId>-->
-            <!--                <executions>-->
-            <!--                    <execution>-->
-            <!--                        <id>copy-dependencies</id>-->
-            <!--                        <phase>prepare-package</phase>-->
-            <!--                        <goals>-->
-            <!--                            <goal>copy-dependencies</goal>-->
-            <!--                        </goals>-->
-            <!--                        <configuration>-->
-            <!--                            &lt;!&ndash; 拷贝项目依赖包到lib/目录下 &ndash;&gt;-->
-            <!--                            <outputDirectory>${project.build.directory}/lib</outputDirectory>-->
-            <!--                            <overWriteReleases>false</overWriteReleases>-->
-            <!--                            <overWriteSnapshots>false</overWriteSnapshots>-->
-            <!--                            <overWriteIfNewer>true</overWriteIfNewer>-->
-            <!--                        </configuration>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -122,7 +83,7 @@
                 <configuration>
                     <artifactSet>
                         <includes>
-                            <include>icu.helltab:common</include>
+                            <include>com.helltab:common</include>
                         </includes>
                     </artifactSet>
                 </configuration>
@@ -136,7 +97,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1</version>

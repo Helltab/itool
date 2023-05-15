@@ -2,10 +2,10 @@ package icu.helltab.itool.multablequery;
 
 import javax.annotation.Resource;
 
-import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
 import icu.helltab.itool.multablequery.mapper.RoleInfo;
 import icu.helltab.itool.multablequery.mapper.UserInfo;
 import icu.helltab.itool.multablequery.mapper.UserService;
+import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

@@ -10,7 +10,7 @@
 
 1. 多数据源使用了 mybatis、mybatis-plus 以及 druid，mybatis相关的配置在   [IMybatisPlusConfig.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/IMybatisPlusConfig.java)  中，只有数据源和 druid 的配置需要单独配置。
 
-2. 为了支持多数据源，使用了单独的数据源配置，前缀为`system.jdbc.datasource`, 见 [MultiDatasourceProperties.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/multi/MultiDatasourceProperties.java) 
+2. 为了支持多数据源，使用了单独的数据源配置，前缀为`system.jdbc.datasource`, 见 [MultiDatasourceProperties.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/multi/MultiDatasourceProperties.java)
 
    ```yaml
    spring:
@@ -59,51 +59,162 @@
            login-username: root
            login-password: root
    system:
+     security:
+       gateway-auth: true
+       gateway-open: 
      jdbc:
        datasource:
          filters: stat,wall
-         validationQuery: SELECT 1
+         customConfig: com.comac.fpi.pure.common.web.config.CustomJdbcConfig
          connections:
-           - driver-class-name: com.mysql.cj.jdbc.Driver
-             url: jdbc:mysql://xx:xx/xx?allowMultiQueries=true&createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-             username: xx
-             password: xx
+           mysql:
+             validationQuery: SELECT 1
+             scanPackages: com.comac.fpi.pure.module.system.web.mapper
+             driver-class-name: com.mysql.cj.jdbc.Driver
+             url: jdbc:mysql://172.16.40.153:3306/fpi-pure?allowMultiQueries=true&createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+             username: {pldd}
+             password: {password}
    ```
 
-3. 使用数据源和设置事务管理，继承  [CusBaseService.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/CusBaseService.java) ，实现 getMySqlRunner() 方法，将对应的数据源 MySqlRunner 和 TransactionManager 设置好即可：
-
-   1. @Transactional：transactionManager、rollbackFor
-   2. @MapperScan：value、sqlSessionFactoryRef
-   3. getMySqlRunner：需要指定名称
+3. 使用数据源和设置事务管理，默认数据源只需要继承  [DefaultBaseService.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/multi/DefaultBaseService.java) ，事务管理默认也是添加好的
 
    ```java
-   @Transactional(transactionManager = DSConfig01.CONF.TRANS, rollbackFor = Throwable.class)
-   @MapperScan(value = "icu.helltab.itool.multablequery.mapper", sqlSessionFactoryRef = DSConfig01.CONF.FACTORY)
-   public class DemoBaseService<M extends BaseMapper<T>, T> extends CusBaseService<M, T> {
+   @Service
+   public class UserService extends DefaultBaseService<UserMapper, UserInfo> {
    
-   	@Resource(name = DSConfig01.CONF.SQL_RUNNER)
-   	MySqlRunner mySqlRunner;
-   
-   	@Override
-   	protected MySqlRunner getMySqlRunner() {
-   		return mySqlRunner;
-   	}
    }
+   List<UserInfo> objects = userService.exList(sql -> {
+       sql.select(UserInfo::getUsername)
+         .from(UserInfo.class)
+       ;
+     }, UserInfo.class);
    ```
 
-4. 新增数据源: 仿造 [DSConfig01.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/multi/ds01/DSConfig01.java) ，改变其中的索引值
+4. 自定义数据源配置修改钩子
 
-   ```java
-   public interface CONF {
-   		int IDX = 1;// <--改变这个，注意本页面引用的常量必须来自这里，而不是其他数据源的
-   		String DS = "MY_DS0" + IDX;
-   		String FACTORY = DS + "_FACTORY";
-   		String TRANS = DS + "_TRANS";
-   		String SQL_RUNNER = DS + "_SQL_RUNNER";
-   	}
+   1. 在配置中指定钩子处理类
+
+   ```yaml
+   system:
+     jdbc:
+       datasource:
+       # 配置钩子处理类
+         customConfig: com.comac.fpi.pure.common.web.config.CustomJdbcConfig
    ```
 
-   
+   2. 编写钩子处理类, 下面这个例子中，我们修改了数据配置中的元数据注入策略
+
+      1. 继承 [MultiDatasourceProperties.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/multi/MultiDatasourceProperties.java) ，这里主要调用 register 将钩子注册到数据源初始化的生命周期里面去
+      2. 通过 `MybatisConfiguration configuration = factory.getConfiguration();` 获取到配置，可以做自定义配置
+
+      ```java
+      package com.comac.fpi.pure.common.web.config;
+      
+      import cn.hutool.core.date.LocalDateTimeUtil;
+      import com.baomidou.mybatisplus.core.MybatisConfiguration;
+      import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
+      import com.comac.fpi.pure.common.web.config.security.HttpContextHolder;
+      import com.comac.itool.multablequery.config.db.handler.MyMetaObjectHandler;
+      import com.comac.itool.multablequery.config.db.multi.MultiDatasourceProperties;
+      import org.apache.ibatis.reflection.MetaObject;
+      import org.springframework.context.annotation.Configuration;
+      import org.springframework.stereotype.Component;
+      
+      import javax.annotation.Resource;
+      import javax.servlet.http.HttpServletRequest;
+      
+      /**
+       * @author Helltab
+       * @mail helltab@163.com
+       * @date 2023/4/18 13:45
+       * @desc 这是数据源自定义配置的钩子, 在这里可以更改 mybatis 的 MybatisSqlSessionFactoryBean 配置
+       * @see
+       */
+      public class CustomJdbcConfig extends MultiDatasourceProperties {
+          static  {
+              // 注册数据源对应的回调函数, 可以修改 MybatisSqlSessionFactoryBean 的属性
+              register("mysql", factory->{
+                  MybatisConfiguration configuration = factory.getConfiguration();
+                  GlobalConfigUtils.getGlobalConfig(configuration)
+                          .setMetaObjectHandler(new CusMetaObjectHandler())
+                          ;
+              });
+          }
+      
+          public static class CusMetaObjectHandler extends MyMetaObjectHandler {
+              @Override
+              public void insertFill(MetaObject metaObject) {
+                  this.setFieldValByName("createBy", HttpContextHolder.getUserNo(), metaObject);
+                  this.setFieldValByName("updateBy", HttpContextHolder.getUserNo(), metaObject);
+                  super.insertFill(metaObject);
+              }
+      
+      
+              @Override
+              public void updateFill(MetaObject metaObject) {
+                  this.setFieldValByName("updateBy", HttpContextHolder.getUserNo(), metaObject);
+                  super.updateFill(metaObject);
+              }
+          }
+      }
+      
+      
+      ```
+
+
+
+5. 新增数据源:
+
+   1. 在配置文件中添加数据源，参见 [ScanConfig.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/multi/ScanConfig.java)
+
+   ```yaml
+     jdbc:
+       datasource:
+         filters: stat,wall
+         customConfig: com.comac.fpi.pure.common.web.config.CustomJdbcConfig
+         connections:
+           other_db: # 这里添加新数据源
+             validationQuery: SELECT 1
+             scanPackages: com.comac.fpi.pure.module.system.web.mapper
+             driver-class-name: com.mysql.cj.jdbc.Driver
+             url: jdbc:mysql://172.16.40.153:3306/fpi-pure?allowMultiQueries=true&createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+             username: {pldd}
+             password: {password}
+   ```
+
+   2. 添加数据源操作基类，参考 [DefaultBaseService.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/multi/DefaultBaseService.java) , 该数据源的操作都需要集成这个类
+
+      ```java
+      package com.comac.itool.multablequery.config.db.multi;
+      
+      import javax.annotation.Resource;
+      
+      import com.comac.itool.multablequery.config.db.CusBaseService;
+      import org.springframework.transaction.annotation.Transactional;
+      import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+      
+      /**
+       * 多数据源示例
+       * todo
+       * 所有的该数据源的 service 都需要继承本 Service
+       */
+      @Transactional(transactionManager = "这里需要替换: ${数据源名}_TM", rollbackFor = Throwable.class)
+      public class DemoBaseServiceDontUseMe<M extends BaseMapper<T>, T> extends CusBaseService<M, T> {
+      
+      	/**
+      	 * todo
+      	 */
+      	@Resource(name = "这里需要替换:${数据源名}_RUNNER")
+      	MySqlRunner mySqlRunner;
+      
+      	protected MySqlRunner getMySqlRunner() {
+      		return mySqlRunner;
+      	}
+      }
+      
+      ```
+
+
 
 ## 多表联查工具的使用
 
@@ -115,7 +226,7 @@
 
       ```java
       @Service
-      public class UserService extends DemoBaseService<UserMapper, UserInfo> {
+      public class UserService extends DefaultBaseService<UserMapper, UserInfo> {
       
       }
       List<UserInfo> objects = userService.exList(sql -> {
@@ -125,21 +236,21 @@
         }, UserInfo.class);
       ```
 
-      
 
-   2. 直接使用 MysqlRunner
 
-      ```java
-      @Resource(name = DSConfig01.CONF.SQL_RUNNER)
-      MySqlRunner mySqlRunner;
-      
-      List<Map<String, Object>> maps = mySqlRunner.selectLambda(sql -> {
-          sql.select(UserInfo::getUsername)
-            .from(UserInfo.class);
-        });
-      ```
+2. 直接使用 MysqlRunner
 
-      
+   ```java
+   @Resource(name = DSConfig01.CONF.SQL_RUNNER)
+   MySqlRunner mySqlRunner;
+   
+   List<Map<String, Object>> maps = mySqlRunner.selectLambda(sql -> {
+       sql.select(UserInfo::getUsername)
+         .from(UserInfo.class);
+     });
+   ```
+
+
 
 ### API 说明
 
@@ -150,17 +261,17 @@
 ```java
 // 单个字段查询
 1. select(UserInfo::getUsername);
-2. select(UserInfo::getUsername, 1);
+2. select(UserInfo::getUsername, q.Alias(1));
 // 多个字段查询
 1. select(UserInfo::getUsername, UserInfo::getPasswrod);//类型检测预警
 2. select(UserInfo::getUsername)
   .select(UserInfo::getPassword);
-3. select(UserInfo::getUsrname, 1)
-  .select(UserInfo::getPasswrod,2);
+3. select(UserInfo::getUsrname, q.Alias(1))
+  .select(UserInfo::getPasswrod,q.Alias(2));
 //子查询
 1. sql.select(inner->{
       inner
-        .selectCount(UserInfo::getId, 1)
+        .selectCount(UserInfo::getId, q.Alias(1))
         .from(UserInfo.class)
         .eq(UserInfo::getUsername, "张三");
     }, UserInfo::getCount);
@@ -184,13 +295,10 @@ sql.from(inner->{
 #### join
 
 ```java
-// left
-sql.leftJoin(UserInfo::getId, RoleUser::getUserId)
-  .leftJoin(RoleInfo::getId, RoleUser::getRoleId)
-;
-sql.leftJoin(UserInfo::getId, RoleUser::getUserId, 0, 0)
-  .leftJoin(RoleInfo::getId, RoleUser::getRoleId, 0, 0)
-;
+// left, 第二个参数使用 lambda 来做条件设置
+sql.leftJoin(RoleInfo.class, j -> {
+                        j.eq(RoleInfo::getId, UserInfo::getRoleId);
+                    })
 // right full 类似
 ```
 
@@ -218,20 +326,15 @@ sql.in(UserInfo::getAge, 20, 18);
 sql.notIn(UserInfo::getAge, 20, 18);
 sql.notIn(UserInfo::getAge, inner->inner.selectRaw("1"));
 sql.exists(UserInfo::getAge, inner->inner.selectRaw("1"));
-sql.like(UserInfo::getUsername, "*尚*");
-sql.notLike(UserInfo::getAge, "*尚*");
+sql.like(UserInfo::getUsername, "尚");
+sql.notLike(UserInfo::getAge, "尚");
 ```
 
 #### group
 
 ```java
-sql.group(UserInfo::getId, UserInfo::getAge, UserInfo::getUsername);
+sql.group(UserInfo::getId).group(UserInfo::getAge).group(UserInfo::getUsername);
 
-// 先传表的索引，再依次传递表字段
-sql.group(
-  ListUtil.of(0, 0, 0),
-  UserInfo::getId, UserInfo::getAge, UserInfo::getUsername
-);
 // having
 sql.having(UserInfo::getUsername, "='张三'");
 ```
@@ -244,7 +347,7 @@ sql.order(UserInfo::getAge, true);
 sql.order(UserInfo::getAge, 0, true);
 ```
 
-#### function 待持续完善
+#### function
 
 ```java
 // select count(a.id) from user_info a;
@@ -254,11 +357,17 @@ sql.selectCount(UserInfo::getId, 0).from(UserInfo.class);
 // select sum(a.id) from user_info a;
 sql.selectSum(UserInfo::getId).from(UserInfo.class);
 sql.selectSum(UserInfo::getId, 0).from(UserInfo.class);
+
+
+// 使用 concat({}, {}) 表达式来申明函数原型
+// 使用 .bind(UserInfo::getAge).bind(UserInfo::getUsername) 来绑定参数
+sql.eq(false, sql.fun("concat({}, {})").bind(UserInfo::getAge)
+                            .bind(UserInfo::getUsername), "23")
 ```
 
 ### CusBaseService 的能力
 
->  [CusBaseService.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/CusBaseService.java) 
+>   [CusBaseService.java](mul-table-query/src/main/java/icu/helltab/itool/multablequery/config/db/CusBaseService.java)
 
 #### 新增
 
@@ -271,7 +380,7 @@ saveBatch;
 
 ```java
 updateById;
-updateByIdBatch;
+        updateByIdBatch;
 ```
 
 
@@ -280,22 +389,22 @@ updateByIdBatch;
 
 ```java
 saveOrUpdate;
-saveOrUpdateBatch;
+        saveOrUpdateBatch;
 ```
 
 #### 删除
 
 ```java
 remove;
-removeById;
-removeByIds;
+        removeById;
+        removeByIds;
 ```
 
 
 
 #### 查询
 
-> 特别说明，分页返回结果为  [HttpPagedInfo.java](common/src/main/java/icu/helltab/itool/common/http/HttpPagedInfo.java) 
+> 特别说明，分页返回结果为  [HttpPagedInfo.java](common/src/main/java/icu/helltab/itool/common/http/HttpPagedInfo.java)
 >
 > 包含 count 和 list 两个值
 
@@ -303,27 +412,27 @@ removeByIds;
 // 查询单个
 getOne(sql->sql.select(UserInfo::getUsername));
 // 查询数量
-getCount(sql->sql.eq(UserInfo::getUsername, "张三"));
+        getCount(sql->sql.eq(UserInfo::getUsername, "张三"));
 // 查询是否存在
-has(sql->sql.eq(UserInfo::getUsername, "张三"));
+        has(sql->sql.eq(UserInfo::getUsername, "张三"));
 // 查询列表
-list(sql->sql.eq(UserInfo::getUsername, "张三"));
+        list(sql->sql.eq(UserInfo::getUsername, "张三"));
 // 查询分页, 默认接口传参 params: pageNum: 当前页数， pageSize: 分页大小（最大为 100）
-page(sql->sql.eq(UserInfo::getUsername, "张三"));
+        page(sql->sql.eq(UserInfo::getUsername, "张三"));
 
 
 // 多表联查能力, 需要指定 from 和返回值接收对象
-exOne(sql->sql.select(UserInfo::getUsername)
-      .from(UserInfo.class)
- , UserInfoVo.class);
+        exOne(sql->sql.select(UserInfo::getUsername)
+        .from(UserInfo.class)
+        , UserInfoVo.class);
 // 列表
-exList(sql->sql.select(UserInfo::getUsername)
-      .from(UserInfo.class)
- , UserInfoVo.class);
+        exList(sql->sql.select(UserInfo::getUsername)
+        .from(UserInfo.class)
+        , UserInfoVo.class);
 // 分页
-exPage(sql->sql.select(UserInfo::getUsername)
-      .from(UserInfo.class)
- , UserInfoVo.class);
+        exPage(sql->sql.select(UserInfo::getUsername)
+        .from(UserInfo.class)
+        , UserInfoVo.class);
 
 ```
 

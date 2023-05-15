@@ -1,9 +1,9 @@
 package icu.helltab.itool.multablequery.config.db;
-
 import javax.sql.DataSource;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
 import icu.helltab.itool.multablequery.config.db.handler.MyMetaObjectHandler;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.AutoMappingBehavior;
@@ -18,7 +18,6 @@ import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
 import icu.helltab.itool.multablequery.config.db.plugins.PrintSqlPlugin;
 
 /**

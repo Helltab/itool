@@ -1,8 +1,8 @@
 package icu.helltab.itool.multablequery;
 
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
-import icu.helltab.itool.multablequery.config.db.handler.MyMetaObjectHandler;
 import icu.helltab.itool.multablequery.config.db.multi.MultiDatasourceProperties;
+import icu.helltab.itool.multablequery.config.db.handler.MyMetaObjectHandler;
 
 /**
  * @author Helltab
