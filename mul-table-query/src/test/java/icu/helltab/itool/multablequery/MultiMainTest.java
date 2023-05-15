@@ -3,18 +3,17 @@ package icu.helltab.itool.multablequery;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.time.Month;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
+import icu.helltab.itool.multablequery.mapper.RoleInfo;
+import icu.helltab.itool.multablequery.mapper.RoleUser;
+import icu.helltab.itool.multablequery.mapper.UserInfo;
+import icu.helltab.itool.multablequery.mapper.UserService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,13 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import cn.hutool.core.collection.ListUtil;
 import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
 import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
-import icu.helltab.itool.multablequery.mapper.RoleInfo;
-import icu.helltab.itool.multablequery.mapper.RoleUser;
-import icu.helltab.itool.multablequery.mapper.UserInfo;
-import icu.helltab.itool.multablequery.mapper.UserService;
 import icu.helltab.itool.multablequery.mapper2.UserService2;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -168,6 +162,7 @@ public class MultiMainTest {
 
     @Test
     public void testName() {
+        userService.list();
         List<Map<String, Object>> maps = mySqlRunner.selectLambda(sql -> {
             sql.from(UserInfo.class)
                     .in(UserInfo::getUsername, "fp", "hjc")

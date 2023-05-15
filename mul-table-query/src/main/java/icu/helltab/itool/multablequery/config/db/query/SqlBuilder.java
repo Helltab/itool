@@ -3,16 +3,20 @@ package icu.helltab.itool.multablequery.config.db.query;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
-import cn.hutool.core.util.StrUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.joint;
 
 
+/**
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 13:54
+ * @desc 这里是自定义 sql 拼装的主类
+ * @see icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder
+ */
 @Data
 public class SqlBuilder {
 	/**

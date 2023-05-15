@@ -3,6 +3,13 @@ package icu.helltab.itool.common.http;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 14:45
+ * @desc http 的线程本地工具, 只适用于 servlet
+ * @see
+ */
 public class ThreadLocalUtil {
     private static final ThreadLocal<Object> TL = new ThreadLocal();
 

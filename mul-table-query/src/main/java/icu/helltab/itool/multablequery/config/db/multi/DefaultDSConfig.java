@@ -3,8 +3,7 @@ package icu.helltab.itool.multablequery.config.db.multi;
 
 import javax.annotation.Resource;
 
-import icu.helltab.itool.multablequery.config.db.plugins.PrintSqlPlugin;
-import org.apache.ibatis.plugin.Interceptor;
+import icu.helltab.itool.multablequery.config.db.IMybatisPlusConfig;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.context.annotation.Bean;
@@ -13,14 +12,16 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.support.JdbcTransactionManager;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import icu.helltab.itool.multablequery.config.db.IMybatisPlusConfig;
-import icu.helltab.itool.multablequery.config.db.handler.MyMetaObjectHandler;
 
 
 /**
- * 多数据源配置
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 13:52
+ * @desc 默认数据源, 符合大多数只有一个数据源的场景使用
+ * 如果配置了多个数据源, 其他数据源会在
+ * @see ScanConfig 中进行初始化
  */
 @Configuration
 @Primary
@@ -43,9 +44,6 @@ public class DefaultDSConfig implements IMybatisPlusConfig {
 	@Primary
 	public MybatisSqlSessionFactoryBean factoryBean() {
 		MybatisSqlSessionFactoryBean factoryBean = mybatisSqlSessionFactory(multiDatasource.defaultDs());
-		multiDatasource.handleCustomer(
-			multiDatasource.defaultDsName(), factoryBean
-		);
 		return factoryBean;
 	}
 
@@ -58,7 +56,11 @@ public class DefaultDSConfig implements IMybatisPlusConfig {
 	@Bean
 	@Primary
 	public MySqlRunner mySqlRunner() {
-		return mySqlRunner(factoryBean());
+		MybatisSqlSessionFactoryBean factoryBean = factoryBean();
+		multiDatasource.handleCustomer(
+				multiDatasource.defaultDsName(), factoryBean
+		);
+		return mySqlRunner(factoryBean);
 	}
 
 }

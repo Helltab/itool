@@ -1,6 +1,13 @@
 package icu.helltab.itool.common.http;
 
 
+/**
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 14:44
+ * @desc 状态码, 实现 HttpStatusInf 可以扩展
+ * @see
+ */
 public enum HttpStatusEnum implements HttpStatusInf {
     SUCCESS(200, "success"),
     REJECT(400, "reject"),

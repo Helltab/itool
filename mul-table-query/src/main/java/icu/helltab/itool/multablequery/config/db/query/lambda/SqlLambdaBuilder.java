@@ -1,11 +1,5 @@
 package icu.helltab.itool.multablequery.config.db.query.lambda;
 
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
@@ -15,16 +9,25 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import icu.helltab.itool.multablequery.config.db.query.SqlBuilder;
 import icu.helltab.itool.multablequery.config.db.query.SqlKeywords;
 import icu.helltab.itool.multablequery.config.db.query.lambda.alias.BaseAlias;
-import icu.helltab.itool.multablequery.config.db.query.lambda.alias.SubQueryAlias;
 import icu.helltab.itool.multablequery.config.db.query.lambda.alias.SerialAlias;
+import icu.helltab.itool.multablequery.config.db.query.lambda.alias.SubQueryAlias;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.*;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.resolveFieldName;
+import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.resolveTableName;
 
 /**
- * lambda 的方式进行多表联查
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 13:58
+ * @desc lambda 的方式进行多表联查
  * todo 添加语法兼容
  * 关键点:
  * 1.select 字段需要懒加载, 可以在 build 阶段生成
@@ -39,6 +42,7 @@ import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.*;
  * 3.4 主查询默认添加 SELECT INNER_F.*
  * 4.解析 lambda 表达式的类和字段, 包括缓存问题
  * 4.1 现有方案: hutool 工具包中的 lambdaUtil 可以解决这个问题
+ * @see
  */
 @Data
 @Slf4j
@@ -46,15 +50,6 @@ import static icu.helltab.itool.multablequery.config.db.query.SqlBuilderUtil.*;
 public class SqlLambdaBuilder extends SqlBuilder {
 
 
-    public static void main(String[] args) {
-        String a = "A";
-        String b = "B";
-        String c = "C";
-        if (true) {
-            System.out.println(c);
-        }
-        System.out.println(a + b + (c.equals("C") ? "D" : "E"));
-    }
 
     /**
      * 函数专用
@@ -438,13 +433,13 @@ public class SqlLambdaBuilder extends SqlBuilder {
         }
         String fieldName = resolveFieldName(source);
         Class<P> realClass = LambdaUtil.getRealClass(source);
-        if (SqlKeywords.IN == opt) {
+        if (SqlKeywords.IN == opt || SqlKeywords.NOT_IN == opt) {
             String inCondition = Arrays.stream((Object[]) value).map(x -> "'" + x + "'")
                     .collect(Collectors.joining(","));
 
             this.where(StrUtil.format(
                     WHERE_CONDITION_RAW2(realClass.getSimpleName(), sIdx, fieldName),
-                    SqlKeywords.IN,
+                    opt,
                     "(" + inCondition + ")"
             ));
             return this;

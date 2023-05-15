@@ -1,7 +1,6 @@
 package icu.helltab.itool.multablequery.mapper;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data

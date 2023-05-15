@@ -1,10 +1,7 @@
 package icu.helltab.itool.scriptengine.common;
 
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
-
-import cn.hutool.json.JSONUtil;
 
 public abstract class ScriptEngine<T> {
 

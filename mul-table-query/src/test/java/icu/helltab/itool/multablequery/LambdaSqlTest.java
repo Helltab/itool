@@ -2,6 +2,10 @@ package icu.helltab.itool.multablequery;
 
 import javax.annotation.Resource;
 
+import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
+import icu.helltab.itool.multablequery.mapper.RoleInfo;
+import icu.helltab.itool.multablequery.mapper.UserInfo;
+import icu.helltab.itool.multablequery.mapper.UserService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,10 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import cn.hutool.db.sql.SqlUtil;
-import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
-import icu.helltab.itool.multablequery.mapper.RoleInfo;
-import icu.helltab.itool.multablequery.mapper.UserInfo;
-import icu.helltab.itool.multablequery.mapper.UserService;
 import lombok.extern.slf4j.Slf4j;
 
 /**

@@ -1,17 +1,13 @@
 package icu.helltab.itool.common;
 
 
-import java.io.Console;
-import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.script.ScriptException;
 
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.LazilyLoadedCtor;
 import org.mozilla.javascript.ScriptRuntime;
-import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.shell.Global;
 

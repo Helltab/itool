@@ -3,6 +3,13 @@ package icu.helltab.itool.common.http;
 import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONUtil;
 
+/**
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 14:43
+ * @desc 分页参数
+ * @see
+ */
 public class HttpPaged {
     public static final int MAX_PAGE_SIZE = 100;
     public static final int MIN_PAGE_SIZE = 1;

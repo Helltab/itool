@@ -1,5 +1,6 @@
 package icu.helltab.itool.multablequery.config.db.multi;
 
+import icu.helltab.itool.multablequery.config.db.IMybatisPlusConfig;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -16,10 +17,16 @@ import org.springframework.jdbc.support.JdbcTransactionManager;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import icu.helltab.itool.multablequery.config.db.IMybatisPlusConfig;
 import lombok.extern.slf4j.Slf4j;
 
-
+/**
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 13:40
+ * @desc 这里是多数据源的配置及 mapper 扫描类
+ * @see MapperScannerConfigurer
+ * @link 如果对默认的 mybatisplus 配置不满意, 可以自定义, 参考测试包中: DemoCustomConfig
+ */
 @Configuration
 @Slf4j
 public class ScanConfig {

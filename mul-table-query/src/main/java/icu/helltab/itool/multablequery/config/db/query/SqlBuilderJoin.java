@@ -3,7 +3,11 @@ package icu.helltab.itool.multablequery.config.db.query;
 import lombok.Data;
 
 /**
- * join 条件
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 13:55
+ * @desc 解决多条件 join 的问题
+ * @see
  */
 @Data
 public class SqlBuilderJoin {

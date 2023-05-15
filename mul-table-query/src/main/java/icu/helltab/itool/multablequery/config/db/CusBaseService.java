@@ -15,19 +15,19 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
 import icu.helltab.itool.common.ex.CusException;
 import icu.helltab.itool.common.http.HttpPaged;
 import icu.helltab.itool.common.http.HttpPagedInfo;
 import icu.helltab.itool.common.http.HttpResult;
 import icu.helltab.itool.common.http.ThreadLocalUtil;
 import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
-import icu.helltab.itool.multablequery.config.db.query.lambda.SqlLambdaBuilder;
 
 /**
- * 多数据源 Service 配置, 如果只有一个数据源, 不需要做扩展
- *
- * @param <M>
- * @param <T>
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 14:22
+ * @desc 本类包含了mybatis-plus的通用功能和多表联查的通用功能, 集成这个类就可以拥有很多能力
  * @see
  */
 public abstract class CusBaseService<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> {
@@ -140,7 +140,8 @@ public abstract class CusBaseService<M extends BaseMapper<T>, T> extends Service
         HttpResult<Object> result = HttpResult.build();
         HttpPaged paged = result.getPaged();
         if (paged == null) {
-            throw new CusException("尝试在接口上添加 @Page ");
+            result.error("尝试在接口上添加 @Paged 注解");
+            return new HttpPagedInfo<>(0, 0, 0, null);
         }
         String finalSql = SqlLambdaBuilder.lambda(consumer);
         List<E> list = listCustom(StrUtil.format(SELECT_LIMIT,

@@ -1,10 +1,10 @@
 package icu.helltab.itool.multablequery.config.db.multi;
 
 import javax.annotation.Resource;
+
+import icu.helltab.itool.multablequery.config.db.CusBaseService;
 import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import icu.helltab.itool.multablequery.config.db.CusBaseService;
-import icu.helltab.itool.multablequery.config.db.multi.MySqlRunner;
 
 /**
  * 多数据源示例

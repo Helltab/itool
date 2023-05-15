@@ -1,18 +1,27 @@
 package icu.helltab.itool.multablequery.config.db.handler;
 
-import java.sql.JDBCType;
-
+import cn.hutool.json.XML;
+import com.sun.media.sound.FFT;
+import lombok.val;
 import org.apache.ibatis.reflection.MetaObject;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import cn.hutool.system.UserInfo;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 
-public class MyMetaObjectHandler implements MetaObjectHandler {
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
+/**
+ * @author Helltab
+ * @desc mybatis plus 自动填充响应的字段
+ * 可以在
+ * @see
+ * @date 2023/4/18-12:44
+ */
+
+public class MyMetaObjectHandler implements MetaObjectHandler {
 
 	@Override
 	public void insertFill(MetaObject metaObject) {
@@ -30,6 +39,5 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 		this.setFieldValByName("updateTime", LocalDateTimeUtil.now(), metaObject);
 		this.setFieldValByName("updateDate", LocalDateTimeUtil.now(), metaObject);
 	}
-
 
 }

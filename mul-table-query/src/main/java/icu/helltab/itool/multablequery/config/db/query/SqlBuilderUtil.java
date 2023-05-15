@@ -12,10 +12,13 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.sql.SqlUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import icu.helltab.itool.common.ex.CusException;
 
 /**
- * sql 生成框架工具类
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 14:00
+ * @desc sql 生成框架工具类
+ * @see
  */
 public class SqlBuilderUtil {
 	public static <T> String joint(String flag, String prefix, String suffix, T... values) {
@@ -38,9 +41,13 @@ public class SqlBuilderUtil {
 		return SqlUtil.formatSql(rawSql);
 	}
 
-
-	//////////lambda
-
+	/**
+	 * @author Helltab
+	 * @date 2023/4/18-14:02
+	 * @params 解析字段名
+	 * @return
+	 * @desc
+	 */
 	public static <P,A> String resolveFieldName(Func1<P, A> func1) {
 		Class<P> aClass = LambdaUtil.getRealClass(func1);
 		String fieldName = LambdaUtil.getFieldName(func1);

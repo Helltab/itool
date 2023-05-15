@@ -17,6 +17,14 @@ import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+
+/**
+ * @author Helltab
+ * @mail helltab@163.com
+ * @date 2023/4/18 13:49
+ * @desc 这是多数据源的配置类, 这个配置对应这 druid 的过滤器, 校验和多数据源
+ * @see
+ */
 @Data
 @ConfigurationProperties("system.jdbc.datasource")
 @Component
@@ -47,15 +55,15 @@ public class MultiDatasourceProperties {
 	/**
 	 * 从基本数据源复制出新的数据源, 满足多数据源需求
 	 *
-	 * @param idx 数据源序号
+	 * @param dsName 数据源标识
 	 * @return
 	 */
-	public DruidDataSource fork(String idx) {
-		if (CACHE.containsKey(idx)) {
-			return CACHE.get(idx);
+	public DruidDataSource fork(String dsName) {
+		if (CACHE.containsKey(dsName)) {
+			return CACHE.get(dsName);
 		}
 		DruidDataSource multiDatasource = new DruidDataSource();
-		MyDataSourceProperties conn = connections.get(idx);
+		MyDataSourceProperties conn = connections.get(dsName);
 		multiDatasource.setUrl(conn.getUrl());
 		multiDatasource.setUsername(conn.getUsername());
 		multiDatasource.setPassword(conn.getPassword());
@@ -65,7 +73,7 @@ public class MultiDatasourceProperties {
 			multiDatasource.setFilters(getFilters());
 		} catch (SQLException ignore) {
 		}
-		CACHE.put(idx, multiDatasource);
+		CACHE.put(dsName, multiDatasource);
 		return multiDatasource;
 	}
 
@@ -86,6 +94,8 @@ public class MultiDatasourceProperties {
 	/**
 	 * 注册自定义配置方法
 	 * 继承之后, 在 static {} 中注册即可
+	 * 这个方法可以自定义 mybatis-plus 的配置
+	 * 具体使用可以参考 DemoCustomConfig
 	 */
 	protected static void register(String dsName, Consumer<MybatisSqlSessionFactoryBean> consumer) {
 		if (consumerMap == null) {

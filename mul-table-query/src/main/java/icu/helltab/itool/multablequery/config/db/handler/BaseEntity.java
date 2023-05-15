@@ -27,6 +27,6 @@ public class BaseEntity {
 	@TableField(value = "update_by", fill = FieldFill.INSERT_UPDATE)
 	private Long updateBy;
 
-	@TableLogic
-	private Integer isDelete;
+//	@TableLogic
+//	private Integer isDelete;
 }
